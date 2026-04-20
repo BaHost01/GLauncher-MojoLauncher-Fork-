@@ -62,6 +62,30 @@
 
             />
 
+        <RadioGroup
+            android:id="@+id/search_mod_type_group"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="@dimen/padding_small"
+            app:layout_constraintTop_toBottomOf="@id/search_mod_edittext">
+
+            <RadioButton
+                android:id="@+id/search_mod_type_modpacks"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/mod_search_type_modpacks"
+                android:checked="true" />
+
+            <RadioButton
+                android:id="@+id/search_mod_type_mods"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/mod_search_type_mods" />
+        </RadioGroup>
+
         <ProgressBar
             android:id="@+id/search_mod_progressbar"
             style="?android:attr/progressBarStyleHorizontal"
@@ -69,7 +93,7 @@
             android:layout_height="wrap_content"
             android:indeterminate="true"
             android:visibility="gone"
-            app:layout_constraintTop_toBottomOf="@+id/search_mod_edittext"
+            app:layout_constraintTop_toBottomOf="@+id/search_mod_type_group"
             tools:layout_editor_absoluteX="13dp" />
 
 

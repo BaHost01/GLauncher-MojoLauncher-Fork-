@@ -16,6 +16,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -38,6 +39,7 @@ public class Downloader {
     private final SpeedCalculator mSpeedCalculator = new SpeedCalculator();
     private ExecutorService mDownloadService;
     private ExecutorService mVerifyService;
+    private CountDownLatch mCompletionLatch;
 
     public Downloader(String mProgressKey) {
         this.mProgressKey = mProgressKey;
@@ -62,18 +64,19 @@ public class Downloader {
         });
         long totalSize = 0;
         int totalCount = metadata.size();
+        mCompletionLatch = new CountDownLatch(totalCount);
         boolean sizeCounter = mUseSizeProgress.get();
         for(TaskMetadata element : metadata) {
             totalSize += element.size;
             mVerifyService.submit(new CheckFileOnDiskTask(element, this));
         }
         double totalMegabytes = totalSize / ONE_MEGABYTE;
-        while(mDownloadedFileCounter.get() < totalCount) {
+        while(mCompletionLatch.getCount() > 0) {
             IOException exception = mThreadException.get();
             if(exception != null) throw exception;
             if(sizeCounter) reportSizeProgress(totalMegabytes);
             else reportCountProgress(R.string.newerdl_downloading_files_count, totalCount);
-            Thread.sleep(33);
+            mCompletionLatch.await(33, TimeUnit.MILLISECONDS);
         }
         mDownloadService.shutdown();
         mVerifyService.shutdown();
@@ -125,6 +128,9 @@ public class Downloader {
 
     protected void taskException(IOException e) {
         mThreadException.set(e);
+        while (mCompletionLatch != null && mCompletionLatch.getCount() > 0) {
+            mCompletionLatch.countDown();
+        }
     }
 
     protected void disableSizeCounter() {
@@ -141,6 +147,7 @@ public class Downloader {
 
     protected void fileComplete() {
         mDownloadedFileCounter.getAndIncrement();
+        if (mCompletionLatch != null) mCompletionLatch.countDown();
     }
 
     protected void addSize(long bytes) {

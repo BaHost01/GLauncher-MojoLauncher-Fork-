@@ -77,7 +77,17 @@ public class LauncherPreferences {
         Tools.initStorageConstants(ctx);
         boolean isDevicePowerful = isDevicePowerful(ctx);
 
-        PREF_RENDERER = DEFAULT_PREF.getString("renderer", "opengles2");
+        if (!DEFAULT_PREF.contains("renderer")) {
+            if (RendererCompatUtil.checkVulkanSupport(ctx.getPackageManager())) {
+                PREF_RENDERER = "vulkan_zink";
+            } else {
+                PREF_RENDERER = "opengles2";
+            }
+            DEFAULT_PREF.edit().putString("renderer", PREF_RENDERER).apply();
+        } else {
+            PREF_RENDERER = DEFAULT_PREF.getString("renderer", "opengles2");
+        }
+        
         PREF_BUTTONSIZE = DEFAULT_PREF.getInt("buttonscale", 100);
         PREF_MOUSESCALE = DEFAULT_PREF.getInt("mousescale", 100)/100f;
         PREF_MOUSESPEED = ((float)DEFAULT_PREF.getInt("mousespeed",100))/100f;

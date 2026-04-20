@@ -121,6 +121,23 @@ public class ModrinthApi implements ModpackApi{
         return ModpackInstaller.installModpack(modDetail, selectedVersion, this::installMrpack);
     }
 
+    @Override
+    public void installMod(ModDetail modDetail, int selectedVersion) throws IOException {
+        String downloadUrl = modDetail.versionUrls[selectedVersion];
+        File modsDir = new File(Tools.DIR_GAME_NEW, "mods");
+        FileUtils.ensureDirectory(modsDir);
+        File targetFile = new File(modsDir, FileUtils.getFileName(downloadUrl));
+
+        ArrayList<TaskMetadata> taskList = new ArrayList<>();
+        taskList.add(new TaskMetadata(targetFile, new URL(downloadUrl), -1, modDetail.hashes[selectedVersion], DownloadMirror.DOWNLOAD_CLASS_LIBRARIES));
+
+        try {
+            new Downloader(ProgressLayout.DOWNLOAD_MOD).runDownloads(taskList);
+        } catch (InterruptedException e) {
+            throw new IOException("Download interrupted", e);
+        }
+    }
+
     private static ModLoader createInfo(ModrinthIndex modrinthIndex) {
         if(modrinthIndex == null) return null;
         Map<String, String> dependencies = modrinthIndex.dependencies;

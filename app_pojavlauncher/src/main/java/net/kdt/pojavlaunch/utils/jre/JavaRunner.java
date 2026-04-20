@@ -96,6 +96,11 @@ public class JavaRunner {
 
         userArguments.add(0, "-Xms"+LauncherPreferences.PREF_RAM_ALLOCATION+"M");
         userArguments.add(0, "-Xmx"+LauncherPreferences.PREF_RAM_ALLOCATION+"M");
+        userArguments.add("-XX:+UseG1GC");
+        userArguments.add("-XX:MaxGCPauseMillis=50");
+        userArguments.add("-XX:G1HeapRegionSize=4M");
+        userArguments.add("-XX:+UnlockExperimentalVMOptions");
+        userArguments.add("-XX:+G1NewSizePercent=20");
 
         ArrayList<String> overridableArguments = new ArrayList<>(Arrays.asList(
                 "-Djava.home=" + runtimeHome,

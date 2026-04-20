@@ -45,7 +45,7 @@ public class InstanceEditorFragment extends Fragment implements CropperUtils.Cro
 
     private Instance mInstance;
     private String mSelectedControlLayout;
-    private Button mSaveButton, mDeleteButton, mControlSelectButton, mVersionSelectButton;
+    private Button mSaveButton, mDeleteButton, mControlSelectButton, mVersionSelectButton, mManageModsButton;
     private Spinner mDefaultRuntime, mDefaultRenderer;
     private EditText mDefaultName, mDefaultJvmArgument;
     private TextView mDefaultVersion, mDefaultControl;
@@ -116,6 +116,8 @@ public class InstanceEditorFragment extends Fragment implements CropperUtils.Cro
             if(checked) text = R.string.instance_shared_data_on;
             mSharedDataCheckbox.setText(text);
         });
+
+        mManageModsButton.setOnClickListener(v -> Tools.swapFragment(requireActivity(), InstalledModsFragment.class, InstalledModsFragment.TAG, null));
 
         Instance selectedInstance = Instances.loadSelectedInstance();
         Context context = view.getContext();
@@ -192,6 +194,7 @@ public class InstanceEditorFragment extends Fragment implements CropperUtils.Cro
         mVersionSelectButton = view.findViewById(R.id.vprof_editor_version_button);
         mInstanceIcon = view.findViewById(R.id.vprof_editor_instance_icon);
         mSharedDataCheckbox = view.findViewById(R.id.vprof_editor_data_checkbox_container);
+        mManageModsButton = view.findViewById(R.id.vprof_editor_manage_mods);
     }
 
     private void save(){

@@ -140,6 +140,24 @@ public class CurseforgeApi implements ModpackApi{
         return ModpackInstaller.installModpack(modDetail, selectedVersion, this::installCurseforgeZip);
     }
 
+    @Override
+    public void installMod(ModDetail modDetail, int selectedVersion) throws IOException {
+        String downloadUrl = modDetail.versionUrls[selectedVersion];
+        String fileName = URLDecoder.decode(FileUtils.getFileName(downloadUrl), "UTF-8");
+        File modsDir = new File(Tools.DIR_GAME_NEW, "mods");
+        FileUtils.ensureDirectory(modsDir);
+        File targetFile = new File(modsDir, fileName);
+
+        ArrayList<TaskMetadata> taskList = new ArrayList<>();
+        taskList.add(new TaskMetadata(targetFile, new URL(downloadUrl), -1, modDetail.hashes[selectedVersion], DownloadMirror.DOWNLOAD_CLASS_LIBRARIES));
+
+        try {
+            new Downloader(ProgressLayout.DOWNLOAD_MOD).runDownloads(taskList);
+        } catch (InterruptedException e) {
+            throw new IOException("Download interrupted", e);
+        }
+    }
+
 
     private int getPaginatedDetails(ArrayList<JsonObject> objectList, int index, String modId) {
         HashMap<String, Object> params = new HashMap<>();

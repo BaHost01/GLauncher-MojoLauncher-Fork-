@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="@dimen/padding_medium"
+    android:gravity="center_vertical"
+    android:background="@drawable/background_line"
+    android:layout_marginVertical="@dimen/padding_small">
+
+    <TextView
+        android:id="@+id/mod_name_textview"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        style="@style/TextAppearance.AppCompat.Body1"
+        android:ellipsize="middle"
+        android:singleLine="true" />
+
+    <ImageButton
+        android:id="@+id/mod_delete_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_px_delete"
+        android:background="?android:attr/selectableItemBackground"
+        android:padding="@dimen/padding_small" />
+
+</LinearLayout>

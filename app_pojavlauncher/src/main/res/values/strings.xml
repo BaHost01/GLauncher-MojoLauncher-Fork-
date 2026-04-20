@@ -91,6 +91,12 @@
     <string name="global_retry">Retry</string>
     <string name="global_default">Default</string>
 
+    <string name="mod_search_type_mods">Mods</string>
+    <string name="mod_search_type_modpacks">Modpacks</string>
+    <string name="mod_download_failed">Mod download failed</string>
+    <string name="download_mod">Downloading mod</string>
+    <string name="instance_manage_mods">Manage Mods</string>
+
     <!-- MainActivity: strings -->
     <string name="mcn_exit_title">Application/Game exited with code %d, check latestlog.txt for more details.</string>
     <string name="mcn_abort_title">Application/Game aborted, check latestlog.txt for more information</string>

@@ -61,6 +61,25 @@ public interface ModpackApi {
     }
 
     /**
+     * Download and install an individual mod
+     * @param context App context
+     * @param modDetail The mod detail data
+     * @param selectedVersion The selected version
+     */
+    default void handleModInstallation(Context context, ModDetail modDetail, int selectedVersion) {
+        ProgressLayout.setProgress(ProgressLayout.DOWNLOAD_MOD, 0, R.string.global_waiting);
+        PojavApplication.sExecutorService.execute(() -> {
+            try {
+                installMod(modDetail, selectedVersion);
+            } catch (IOException e) {
+                Tools.showErrorRemote(context, R.string.mod_download_failed, e);
+            } finally {
+                ProgressLayout.clearProgress(ProgressLayout.DOWNLOAD_MOD);
+            }
+        });
+    }
+
+    /**
      * Install the mod(pack).
      * May require the download of additional files.
      * May requires launching the installation of a modloader
@@ -68,4 +87,11 @@ public interface ModpackApi {
      * @param selectedVersion The selected version
      */
     ModLoader installModpack(ModDetail modDetail, int selectedVersion) throws IOException;
+
+    /**
+     * Install an individual mod.
+     * @param modDetail The mod detail data
+     * @param selectedVersion The selected version
+     */
+    void installMod(ModDetail modDetail, int selectedVersion) throws IOException;
 }

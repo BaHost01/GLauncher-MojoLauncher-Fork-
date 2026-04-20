@@ -1,22 +1,43 @@
-name: Android CI
+name: Android CI & Release
 
 on:
   push:
-  workflow_dispatch:
+    branches: [ "v3_openjdk", "master", "main" ]
+    tags: [ 'v*' ]
   pull_request:
-    types: [labeled]
+    branches: [ "v3_openjdk", "master", "main" ]
+  workflow_dispatch:
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
-    env:
-      UPLOAD_KEYSTORE_PASSWORD: ${{ secrets.UPLOAD_KEYSTORE_PASSWORD }}
-      CURSEFORGE_API_KEY: ${{ secrets.CURSEFORGE_API_KEY }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+    name: Build APK & AAB
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    strategy:
+      matrix:
+        flavor: [full, noruntime]
+        build-type: [debug, release]
 
-      - name: Get LTW
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'gradle'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Get LTW Artifact
         uses: dawidd6/action-download-artifact@v6
         continue-on-error: true
         with:
@@ -26,50 +47,64 @@ jobs:
           name: output-aar
           path: app_pojavlauncher/libs
 
-      - uses: gradle/actions/setup-gradle@v4
+      - name: Gradle Cache
+        uses: actions/cache@v4
         with:
-          gradle-version: "8.14.3"
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
 
-      - name: Set up JDK 17
-        uses: actions/setup-java@v3
+      - name: NDK Cache
+        uses: actions/cache@v4
         with:
-          distribution: 'temurin'
-          java-version: '17'
-      - name: Create out directory
-        run: mkdir out
-      - name: Build Publishing .aab
-        if: github.repository_owner == 'MojoLauncher' && github.ref_name == 'v3_openjdk'
-        run: |
-          gradle :app_pojavlauncher:bundleFullGplay
-          mv app_pojavlauncher/build/outputs/bundle/fullGplay/app_pojavlauncher-full-gplay.aab out/app-gplay.aab
+          path: ${{ env.ANDROID_SDK_ROOT }}/ndk
+          key: ${{ runner.os }}-ndk-28.2.13676358
+          restore-keys: |
+            ${{ runner.os }}-ndk-
 
-      - name: Build Debug .apk
+      - name: Build with Gradle
+        env:
+          CURSEFORGE_API_KEY: ${{ secrets.CURSEFORGE_API_KEY }}
         run: |
-          # Build the launcher
-          gradle :app_pojavlauncher:assembleFullDebug
-          mv app_pojavlauncher/build/outputs/apk/full/debug/app_pojavlauncher-full-debug.apk out/app-debug-full.apk
+          ./gradlew :app_pojavlauncher:assemble${{ matrix.flavor }}${{ matrix.build-type }}
 
-      - name: Build Debug .apk (No runtime)
+      - name: Prepare Artifacts
         run: |
-          gradle :app_pojavlauncher:assembleNoruntimeDebug
-          mv app_pojavlauncher/build/outputs/apk/noruntime/debug/app_pojavlauncher-noruntime-debug.apk out/app-debug-noruntime.apk
+          mkdir -p out
+          find app_pojavlauncher/build/outputs/apk/ -name "*.apk" -exec cp {} out/ \;
 
-      - name: Gen md5sums
-        run: |
-          md5sum out/app-debug-full.apk > out/app-debug-full.md5
-          md5sum out/app-debug-noruntime.apk > out/app-debug-noruntime.md5
-
-      - name: Upload Debug APK
+      - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: app-debug
-          path: out/app-debug-full.apk
+          name: PojavLauncher-${{ matrix.flavor }}-${{ matrix.build-type }}
+          path: out/*.apk
 
-      - name: Upload Debug APK (No runtime)
-        uses: actions/upload-artifact@v4
+  release:
+    name: Create Release
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
         with:
-          name: app-debug-noruntime
-          path: out/app-debug-noruntime.apk
+          path: artifacts
 
+      - name: Organize Release Files
+        run: |
+          mkdir release_files
+          find artifacts -name "*.apk" -exec cp {} release_files/ \;
+          cd release_files
+          for f in *.apk; do md5sum "$f" > "$f.md5"; done
 
-      
+      - name: Create GitHub Release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "release_files/*"
+          generateReleaseNotes: true
+          token: ${{ secrets.GITHUB_TOKEN }}

@@ -243,6 +243,14 @@
                 app:layout_constraintEnd_toEndOf="@id/vprof_editor_instance_renderer"
                 app:layout_constraintTop_toTopOf="@id/vprof_editor_instance_renderer" />
 
+            <com.kdt.mcgui.MineButton
+                android:id="@+id/vprof_editor_manage_mods"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                android:text="@string/instance_manage_mods"
+                app:layout_constraintTop_toBottomOf="@id/vprof_editor_instance_renderer" />
+
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>

@@ -9,6 +9,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -77,6 +78,12 @@ public class SearchModFragment extends Fragment implements ModItemAdapter.Search
         mRecyclerview = view.findViewById(R.id.search_mod_list);
         mStatusTextView = view.findViewById(R.id.search_mod_status_text);
         mFilterButton = view.findViewById(R.id.search_mod_filter);
+
+        RadioGroup typeGroup = view.findViewById(R.id.search_mod_type_group);
+        typeGroup.setOnCheckedChangeListener((group, checkedId) -> {
+            mSearchFilters.isModpack = checkedId == R.id.search_mod_type_modpacks;
+            searchMods(mSearchEditText.getText().toString());
+        });
 
         mDefaultTextColor = mStatusTextView.getTextColors();
 
