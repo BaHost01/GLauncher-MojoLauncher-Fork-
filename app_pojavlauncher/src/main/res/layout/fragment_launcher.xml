@@ -33,7 +33,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Community"
+                    android:text="@string/launcher_category_community"
                     android:textColor="@color/accent_color"
                     android:textSize="@dimen/_10ssp"
                     android:textStyle="bold"
@@ -68,7 +68,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Tools"
+                    android:text="@string/launcher_category_tools"
                     android:textColor="@color/accent_color"
                     android:textSize="@dimen/_10ssp"
                     android:textStyle="bold"

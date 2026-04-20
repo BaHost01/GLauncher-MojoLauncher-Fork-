@@ -96,6 +96,9 @@
     <string name="mod_download_failed">Mod download failed</string>
     <string name="download_mod">Downloading mod</string>
     <string name="instance_manage_mods">Manage Mods</string>
+    <string name="mod_delete_failed">Failed to delete mod</string>
+    <string name="launcher_category_community">Community</string>
+    <string name="launcher_category_tools">Tools</string>
 
     <!-- MainActivity: strings -->
     <string name="mcn_exit_title">Application/Game exited with code %d, check latestlog.txt for more details.</string>

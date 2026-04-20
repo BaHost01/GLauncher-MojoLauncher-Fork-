@@ -90,7 +90,7 @@ public class InstalledModsFragment extends Fragment {
                     notifyItemRemoved(position);
                     notifyItemRangeChanged(position, mModFiles.size());
                 } else {
-                    Toast.makeText(getContext(), "Failed to delete mod", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), R.string.mod_delete_failed, Toast.LENGTH_SHORT).show();
                 }
             });
         }
