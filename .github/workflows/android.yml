@@ -16,6 +16,7 @@ jobs:
       contents: write
     
     strategy:
+      fail-fast: false
       matrix:
         flavor: [full, noruntime]
         build-type: [debug, release]
